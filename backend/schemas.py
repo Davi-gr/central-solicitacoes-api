@@ -2,6 +2,9 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
+Prioridade = Literal["baixa", "media", "alta"]
+Status = Literal["Aberta", "Em andamento", "Concluída"]
+
 
 class SolicitacaoCreate(BaseModel):
     model_config = ConfigDict(str_strip_whitespace=True)
@@ -9,7 +12,7 @@ class SolicitacaoCreate(BaseModel):
     titulo: str = Field(min_length=1, max_length=100)
     descricao: str = Field(min_length=1)
     categoria: str = Field(min_length=1, max_length=50)
-    prioridade: Literal["baixa", "media", "alta"]
+    prioridade: Prioridade
 
 
 class SolicitacaoResponse(BaseModel):

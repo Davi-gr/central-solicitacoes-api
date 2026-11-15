@@ -49,3 +49,38 @@ def criar_solicitacao(dados):
         return dict(linha)
     finally:
         conn.close()
+
+
+def listar_solicitacoes(status=None, prioridade=None):
+    condicoes = []
+    parametros = []
+
+    if status is not None:
+        condicoes.append("status = ?")
+        parametros.append(status)
+    if prioridade is not None:
+        condicoes.append("prioridade = ?")
+        parametros.append(prioridade)
+
+    sql = "SELECT * FROM solicitacoes"
+    if condicoes:
+        sql += " WHERE " + " AND ".join(condicoes)
+    sql += " ORDER BY id DESC"
+
+    conn = get_connection()
+    try:
+        linhas = conn.execute(sql, parametros).fetchall()
+        return [dict(linha) for linha in linhas]
+    finally:
+        conn.close()
+
+
+def buscar_solicitacao(id):
+    conn = get_connection()
+    try:
+        linha = conn.execute(
+            "SELECT * FROM solicitacoes WHERE id = ?", (id,)
+        ).fetchone()
+        return dict(linha) if linha else None
+    finally:
+        conn.close()
