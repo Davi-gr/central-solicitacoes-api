@@ -1,6 +1,9 @@
 from contextlib import asynccontextmanager
 from typing import Optional
 
+from pathlib import Path
+from fastapi.staticfiles import StaticFiles
+
 from fastapi import FastAPI, HTTPException
 
 from . import database, services
@@ -20,7 +23,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="Central de Solicitações", lifespan=lifespan)
-
+FRONTEND_DIR = Path(__file__).parent.parent / "frontend"
 
 @app.post("/solicitacoes", response_model=SolicitacaoResponse, status_code=201)
 def criar(dados: SolicitacaoCreate):
@@ -61,3 +64,5 @@ def alterar_status(solicitacao_id: int, dados: StatusUpdate):
             "Atualize a página e tente novamente.",
         )
     return atualizada
+
+app.mount("/", StaticFiles(directory=FRONTEND_DIR, html=True), name="frontend")
