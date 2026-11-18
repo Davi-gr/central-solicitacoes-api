@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Central de Solicitações</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>Central de Solicitações</h1>
+  </header>
+
+  <main>
+    <section>
+      <h2>Nova solicitação</h2>
+      <form id="form-solicitacao" novalidate>
+        <label for="titulo">Título</label>
+        <input type="text" id="titulo" name="titulo">
+
+        <label for="descricao">Descrição</label>
+        <textarea id="descricao" name="descricao" rows="3"></textarea>
+
+        <label for="categoria">Categoria</label>
+        <input type="text" id="categoria" name="categoria">
+
+        <label for="prioridade">Prioridade</label>
+        <select id="prioridade" name="prioridade">
+          <option value="">Selecione...</option>
+          <option value="baixa">Baixa</option>
+          <option value="media">Média</option>
+          <option value="alta">Alta</option>
+        </select>
+
+        <button type="submit">Cadastrar</button>
+      </form>
+
+      <div id="mensagem" role="alert"></div>
+    </section>
+
+    <section>
+      <h2>Solicitações</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Título</th>
+            <th>Categoria</th>
+            <th>Prioridade</th>
+            <th>Status</th>
+            <th>Criada em</th>
+          </tr>
+        </thead>
+        <tbody id="lista"></tbody>
+      </table>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

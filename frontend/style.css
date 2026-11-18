@@ -1,0 +1,45 @@
+body {
+  font-family: system-ui, sans-serif;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 1rem;
+  color: #222;
+}
+
+form {
+  display: grid;
+  gap: 0.5rem;
+  max-width: 500px;
+}
+
+input, textarea, select, button {
+  font: inherit;
+  padding: 0.5rem;
+}
+
+button {
+  cursor: pointer;
+}
+
+#mensagem p {
+  margin: 0.25rem 0;
+}
+
+#mensagem.erro {
+  color: #b00020;
+}
+
+#mensagem.sucesso {
+  color: #1b7f3b;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th, td {
+  border-bottom: 1px solid #ddd;
+  padding: 0.5rem;
+  text-align: left;
+}
