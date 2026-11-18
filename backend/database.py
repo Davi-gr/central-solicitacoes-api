@@ -75,12 +75,30 @@ def listar_solicitacoes(status=None, prioridade=None):
         conn.close()
 
 
-def buscar_solicitacao(id):
+
+def buscar_solicitacao(solicitacao_id):
     conn = get_connection()
     try:
         linha = conn.execute(
-            "SELECT * FROM solicitacoes WHERE id = ?", (id,)
+            "SELECT * FROM solicitacoes WHERE id = ?", (solicitacao_id,)
         ).fetchone()
         return dict(linha) if linha else None
+    finally:
+        conn.close()
+
+def atualizar_status(solicitacao_id, status_atual, novo_status):
+    conn = get_connection()
+    try:
+        cursor = conn.execute(
+            "UPDATE solicitacoes SET status = ? WHERE id = ? AND status = ?",
+            (novo_status, solicitacao_id, status_atual),
+        )
+        conn.commit()
+        if cursor.rowcount == 0:
+            return None  # ninguém foi alterado: o status mudou no meio do caminho
+        linha = conn.execute(
+            "SELECT * FROM solicitacoes WHERE id = ?", (solicitacao_id,)
+        ).fetchone()
+        return dict(linha)
     finally:
         conn.close()

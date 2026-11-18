@@ -10,9 +10,13 @@ class SolicitacaoCreate(BaseModel):
     model_config = ConfigDict(str_strip_whitespace=True)
 
     titulo: str = Field(min_length=1, max_length=100)
-    descricao: str = Field(min_length=1)
+    descricao: str = Field(min_length=1, max_length=2000)
     categoria: str = Field(min_length=1, max_length=50)
     prioridade: Prioridade
+
+
+class StatusUpdate(BaseModel):
+    status: Status
 
 
 class SolicitacaoResponse(BaseModel):

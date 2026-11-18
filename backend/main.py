@@ -3,12 +3,19 @@ from typing import Optional
 
 from fastapi import FastAPI, HTTPException
 
-from . import database
-from .schemas import Prioridade, SolicitacaoCreate, SolicitacaoResponse, Status
+from . import database, services
+from .schemas import (
+    Prioridade,
+    SolicitacaoCreate,
+    SolicitacaoResponse,
+    Status,
+    StatusUpdate,
+)
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    database.init_db()  # cria a tabela ao iniciar o servidor
+    database.init_db()
     yield
 
 
@@ -25,9 +32,32 @@ def listar(status: Optional[Status] = None, prioridade: Optional[Prioridade] = N
     return database.listar_solicitacoes(status, prioridade)
 
 
-@app.get("/solicitacoes/{id}", response_model=SolicitacaoResponse)
-def detalhar(id: int):
-    solicitacao = database.buscar_solicitacao(id)
+@app.get("/solicitacoes/{solicitacao_id}", response_model=SolicitacaoResponse)
+def detalhar(solicitacao_id: int):
+    solicitacao = database.buscar_solicitacao(solicitacao_id)
     if solicitacao is None:
         raise HTTPException(status_code=404, detail="Solicitação não encontrada.")
     return solicitacao
+
+
+@app.patch("/solicitacoes/{solicitacao_id}/status", response_model=SolicitacaoResponse)
+def alterar_status(solicitacao_id: int, dados: StatusUpdate):
+    solicitacao = database.buscar_solicitacao(solicitacao_id)
+    if solicitacao is None:
+        raise HTTPException(status_code=404, detail="Solicitação não encontrada.")
+
+    try:
+        services.validar_transicao(solicitacao["status"], dados.status)
+    except services.TransicaoInvalidaError as erro:
+        raise HTTPException(status_code=409, detail=str(erro))
+
+    atualizada = database.atualizar_status(
+        solicitacao_id, solicitacao["status"], dados.status
+    )
+    if atualizada is None:
+        raise HTTPException(
+            status_code=409,
+            detail="O status desta solicitação foi alterado por outra operação. "
+            "Atualize a página e tente novamente.",
+        )
+    return atualizada
