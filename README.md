@@ -88,7 +88,15 @@ venv/Scripts/python -m pip install -r requirements.txt
 ```
 *(No Linux/macOS, utilize `python -m pip install -r requirements.txt`).*
 
-### 4. Iniciar a aplicação
+## 4. Dados de demonstração
+
+Para popular o banco com solicitações de exemplo:
+
+    venv/Scripts/python seed.py
+
+Se o banco já tiver dados, o script não altera nada. Para apagar tudo e recriar: `seed.py --limpar`.
+
+### 5. Iniciar a aplicação
 Na raiz do projeto (`central-solicitacoes/`), execute:
 
 ```bash
@@ -96,7 +104,7 @@ venv/Scripts/python -m uvicorn backend.main:app --reload
 ```
 *(No Linux/macOS, utilize `uvicorn backend.main:app --reload`).*
 
-### 5. Acessar no navegador
+### 6. Acessar no navegador
 - **Interface Web:** [http://127.0.0.1:8000](http://127.0.0.1:8000)
 - **Documentação Interativa da API (Swagger UI):** [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
 
