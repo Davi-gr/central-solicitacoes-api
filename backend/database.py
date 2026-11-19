@@ -102,3 +102,14 @@ def atualizar_status(solicitacao_id, status_atual, novo_status):
         return dict(linha)
     finally:
         conn.close()
+
+def resumo_por_status():
+    conn = get_connection()
+    try:
+        linhas = conn.execute(
+            "SELECT status, COUNT(*) AS quantidade FROM solicitacoes GROUP BY status"
+        ).fetchall()
+        por_status = {linha["status"]: linha["quantidade"] for linha in linhas}
+        return {"total": sum(por_status.values()), "por_status": por_status}
+    finally:
+        conn.close()

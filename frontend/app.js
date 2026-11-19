@@ -195,6 +195,21 @@ async function carregarSolicitacoes() {
   }
 }
 
+async function carregarResumo() {
+  try {
+    const resposta = await fetch(`${API}/resumo`);
+    const corpo = await lerJson(resposta);
+    if (!resposta.ok) return;
+
+    const porStatus = corpo.por_status;
+    document.getElementById("resumo-total").textContent = corpo.total;
+    document.getElementById("resumo-aberta").textContent = porStatus["Aberta"] ?? 0;
+    document.getElementById("resumo-andamento").textContent = porStatus["Em andamento"] ?? 0;
+    document.getElementById("resumo-concluida").textContent = porStatus["Concluída"] ?? 0;
+  } catch {
+    // o resumo é secundário: se falhar, a lista já mostra o erro de conexão
+  }
+}
 
 function limparFiltros() {
   filtroStatus.value = "";
@@ -286,6 +301,7 @@ async function avancarStatus() {
       "sucesso"
     );
     await carregarSolicitacoes();
+    await carregarResumo();
   } catch {
     mostrarMensagem(
       areaMensagemDetalhe,
@@ -324,6 +340,7 @@ async function enviarFormulario(evento) {
     form.reset();
     mostrarMensagem(areaMensagem, ["Solicitação cadastrada com sucesso."], "sucesso");
     await carregarSolicitacoes();
+    await carregarResumo();
   } catch {
     mostrarMensagem(areaMensagem, ["Não foi possível conectar ao servidor."], "erro");
   }
@@ -339,5 +356,12 @@ botaoFechar.addEventListener("click", () => dialogo.close());
 dialogo.addEventListener("click", (evento) => {
   if (evento.target === dialogo) dialogo.close();
 });
+for (const card of document.querySelectorAll(".card[data-status]")) {
+  card.addEventListener("click", () => {
+    filtroStatus.value = card.dataset.status;
+    carregarSolicitacoes();
+  });
+}
 
 carregarSolicitacoes();
+carregarResumo();

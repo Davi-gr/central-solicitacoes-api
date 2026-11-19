@@ -12,6 +12,24 @@
   </header>
 
   <main>
+    <section class="resumo" aria-label="Resumo das solicitações">
+      <button type="button" class="card" data-status="">
+        <span class="card-numero" id="resumo-total">0</span>
+        <span class="card-rotulo">Total</span>
+      </button>
+      <button type="button" class="card" data-status="Aberta">
+        <span class="card-numero" id="resumo-aberta">0</span>
+        <span class="card-rotulo">Abertas</span>
+      </button>
+      <button type="button" class="card" data-status="Em andamento">
+        <span class="card-numero" id="resumo-andamento">0</span>
+        <span class="card-rotulo">Em andamento</span>
+      </button>
+      <button type="button" class="card" data-status="Concluída">
+        <span class="card-numero" id="resumo-concluida">0</span>
+        <span class="card-rotulo">Concluídas</span>
+      </button>
+    </section>
     <section>
       <h2>Nova solicitação</h2>
       <form id="form-solicitacao" novalidate>

@@ -121,3 +121,40 @@ dd {
   gap: 0.5rem;
   margin-top: 1rem;
 }
+
+.resumo {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.25rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: #fff;
+  text-align: left;
+}
+
+.card:hover {
+  border-color: #888;
+}
+
+.card-numero {
+  font-size: 1.75rem;
+  font-weight: 700;
+}
+
+.card-rotulo {
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.card[data-status="Aberta"] .card-numero { color: #0b4a8f; }
+.card[data-status="Em andamento"] .card-numero { color: #4a2c8a; }
+.card[data-status="Concluída"] .card-numero { color: #3a3a3a; }

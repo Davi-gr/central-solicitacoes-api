@@ -27,3 +27,7 @@ class SolicitacaoResponse(BaseModel):
     prioridade: str
     status: str
     criado_em: str
+
+class ResumoResponse(BaseModel):
+    total: int
+    por_status: dict[str, int]

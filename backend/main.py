@@ -13,6 +13,7 @@ from .schemas import (
     SolicitacaoResponse,
     Status,
     StatusUpdate,
+    ResumoResponse
 )
 
 
@@ -34,6 +35,9 @@ def criar(dados: SolicitacaoCreate):
 def listar(status: Optional[Status] = None, prioridade: Optional[Prioridade] = None):
     return database.listar_solicitacoes(status, prioridade)
 
+@app.get("/solicitacoes/resumo", response_model=ResumoResponse)
+def resumo():
+    return database.resumo_por_status()
 
 @app.get("/solicitacoes/{solicitacao_id}", response_model=SolicitacaoResponse)
 def detalhar(solicitacao_id: int):
