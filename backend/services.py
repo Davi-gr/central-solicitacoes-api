@@ -1,5 +1,4 @@
-# Para cada status, qual é o ÚNICO próximo status permitido.
-# Concluída não aparece como chave: é o fim do fluxo.
+
 TRANSICOES = {
     "Aberta": "Em andamento",
     "Em andamento": "Concluída",
