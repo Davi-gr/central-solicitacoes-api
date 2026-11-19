@@ -40,21 +40,73 @@
 
     <section>
       <h2>Solicitações</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Título</th>
-            <th>Categoria</th>
-            <th>Prioridade</th>
-            <th>Status</th>
-            <th>Criada em</th>
-          </tr>
-        </thead>
-        <tbody id="lista"></tbody>
-      </table>
+
+      <div class="filtros">
+        <label for="filtro-status">Status</label>
+        <select id="filtro-status">
+          <option value="">Todos</option>
+          <option value="Aberta">Aberta</option>
+          <option value="Em andamento">Em andamento</option>
+          <option value="Concluída">Concluída</option>
+        </select>
+
+        <label for="filtro-prioridade">Prioridade</label>
+        <select id="filtro-prioridade">
+          <option value="">Todas</option>
+          <option value="baixa">Baixa</option>
+          <option value="media">Média</option>
+          <option value="alta">Alta</option>
+        </select>
+
+        <button type="button" id="limpar-filtros">Limpar filtros</button>
+      </div>
+
+      <div class="tabela-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Título</th>
+              <th>Categoria</th>
+              <th>Prioridade</th>
+              <th>Status</th>
+              <th>Criada em</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody id="lista"></tbody>
+        </table>
+      </div>
     </section>
   </main>
+
+  <dialog id="dialogo" aria-labelledby="d-titulo">
+    <div class="dialogo-conteudo">
+      <h2 id="d-titulo"></h2>
+
+      <dl>
+        <dt>ID</dt>
+        <dd id="d-id"></dd>
+        <dt>Descrição</dt>
+        <dd id="d-descricao"></dd>
+        <dt>Categoria</dt>
+        <dd id="d-categoria"></dd>
+        <dt>Prioridade</dt>
+        <dd id="d-prioridade"></dd>
+        <dt>Status</dt>
+        <dd id="d-status"></dd>
+        <dt>Criada em</dt>
+        <dd id="d-criado"></dd>
+      </dl>
+
+      <div id="mensagem-detalhe" role="alert"></div>
+
+      <div class="acoes">
+        <button type="button" id="botao-avancar"></button>
+        <button type="button" id="botao-fechar">Fechar</button>
+      </div>
+    </div>
+  </dialog>
 
   <script src="app.js"></script>
 </body>

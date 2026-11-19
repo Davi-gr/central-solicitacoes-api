@@ -1,6 +1,6 @@
 body {
   font-family: system-ui, sans-serif;
-  max-width: 900px;
+  max-width: 960px;
   margin: 0 auto;
   padding: 1rem;
   color: #222;
@@ -21,16 +21,33 @@ button {
   cursor: pointer;
 }
 
-#mensagem p {
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+#mensagem p, #mensagem-detalhe p {
   margin: 0.25rem 0;
 }
 
-#mensagem.erro {
+.erro {
   color: #b00020;
 }
 
-#mensagem.sucesso {
+.sucesso {
   color: #1b7f3b;
+}
+
+.filtros {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1rem;
+  margin-bottom: 1rem;
+}
+
+.tabela-wrapper {
+  overflow-x: auto;
 }
 
 table {
@@ -42,4 +59,65 @@ th, td {
   border-bottom: 1px solid #ddd;
   padding: 0.5rem;
   text-align: left;
+}
+
+.badge {
+  display: inline-block;
+  padding: 0.15rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.prioridade-baixa { background: #e3f4e6; color: #1b5e20; }
+.prioridade-media { background: #fff1cc; color: #7a4f00; }
+.prioridade-alta  { background: #fde2e4; color: #8c1d28; }
+
+.status-aberta    { background: #e1efff; color: #0b4a8f; }
+.status-andamento { background: #ece4ff; color: #4a2c8a; }
+.status-concluida { background: #e4e4e4; color: #3a3a3a; }
+.badge-neutro     { background: #eee; color: #333; }
+
+dialog {
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 0;
+  width: 90%;
+  max-width: 520px;
+}
+
+dialog::backdrop {
+  background: rgba(0, 0, 0, 0.4);
+}
+
+.dialogo-conteudo {
+  padding: 1.5rem;
+}
+
+.dialogo-conteudo h2 {
+  margin-top: 0;
+  overflow-wrap: anywhere;
+}
+
+dl {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 0.5rem 1rem;
+}
+
+dt {
+  font-weight: 600;
+}
+
+dd {
+  margin: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.acoes {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
 }
