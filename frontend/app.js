@@ -32,6 +32,7 @@ const areaMensagem = document.getElementById("mensagem");
 const corpoTabela = document.getElementById("lista");
 const filtroStatus = document.getElementById("filtro-status");
 const filtroPrioridade = document.getElementById("filtro-prioridade");
+const filtroBusca = document.getElementById("filtro-busca");
 const botaoLimpar = document.getElementById("limpar-filtros");
 
 const dialogo = document.getElementById("dialogo");
@@ -41,6 +42,7 @@ const botaoFechar = document.getElementById("botao-fechar");
 
 let solicitacaoAberta = null;
 let contadorLista = 0;
+let temporizadorBusca = null;
 
 
 function mostrarMensagem(area, mensagens, tipo) {
@@ -129,7 +131,8 @@ function renderizarTabela(lista) {
   corpoTabela.replaceChildren();
 
   if (lista.length === 0) {
-    const filtrando = filtroStatus.value || filtroPrioridade.value;
+    const filtrando =
+      filtroStatus.value || filtroPrioridade.value || filtroBusca.value.trim();
     const linha = document.createElement("tr");
     const celula = document.createElement("td");
     celula.colSpan = 7;
@@ -175,6 +178,7 @@ async function carregarSolicitacoes() {
   const params = new URLSearchParams();
   if (filtroStatus.value) params.set("status", filtroStatus.value);
   if (filtroPrioridade.value) params.set("prioridade", filtroPrioridade.value);
+  if (filtroBusca.value.trim()) params.set("busca", filtroBusca.value.trim());
   const consulta = params.toString();
   const url = consulta ? `${API}?${consulta}` : API;
 
@@ -214,6 +218,7 @@ async function carregarResumo() {
 function limparFiltros() {
   filtroStatus.value = "";
   filtroPrioridade.value = "";
+  filtroBusca.value = "";
   carregarSolicitacoes();
 }
 
@@ -350,6 +355,10 @@ async function enviarFormulario(evento) {
 form.addEventListener("submit", enviarFormulario);
 filtroStatus.addEventListener("change", carregarSolicitacoes);
 filtroPrioridade.addEventListener("change", carregarSolicitacoes);
+filtroBusca.addEventListener("input", () => {
+  clearTimeout(temporizadorBusca);
+  temporizadorBusca = setTimeout(carregarSolicitacoes, 300);
+});
 botaoLimpar.addEventListener("click", limparFiltros);
 botaoAvancar.addEventListener("click", avancarStatus);
 botaoFechar.addEventListener("click", () => dialogo.close());

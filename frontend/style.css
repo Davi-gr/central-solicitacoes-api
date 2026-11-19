@@ -46,6 +46,11 @@ button:disabled {
   margin-bottom: 1rem;
 }
 
+.filtros input[type="search"] {
+  min-width: 280px;
+  flex: 1 1 280px;
+}
+
 .tabela-wrapper {
   overflow-x: auto;
 }

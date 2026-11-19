@@ -51,7 +51,7 @@ def criar_solicitacao(dados):
         conn.close()
 
 
-def listar_solicitacoes(status=None, prioridade=None):
+def listar_solicitacoes(status=None, prioridade=None, busca=None):
     condicoes = []
     parametros = []
 
@@ -61,6 +61,9 @@ def listar_solicitacoes(status=None, prioridade=None):
     if prioridade is not None:
         condicoes.append("prioridade = ?")
         parametros.append(prioridade)
+    if busca:
+        condicoes.append("(titulo LIKE ? OR descricao LIKE ?)")
+        parametros.extend((f"%{busca}%", f"%{busca}%"))
 
     sql = "SELECT * FROM solicitacoes"
     if condicoes:

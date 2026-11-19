@@ -32,8 +32,12 @@ def criar(dados: SolicitacaoCreate):
 
 
 @app.get("/solicitacoes", response_model=list[SolicitacaoResponse])
-def listar(status: Optional[Status] = None, prioridade: Optional[Prioridade] = None):
-    return database.listar_solicitacoes(status, prioridade)
+def listar(
+    status: Optional[Status] = None,
+    prioridade: Optional[Prioridade] = None,
+    busca: Optional[str] = None,
+):
+    return database.listar_solicitacoes(status, prioridade, busca)
 
 @app.get("/solicitacoes/resumo", response_model=ResumoResponse)
 def resumo():
