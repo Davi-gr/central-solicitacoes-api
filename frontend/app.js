@@ -1,8 +1,9 @@
 const API = "/solicitacoes";
 
-const form = document.getElementById("form-solicitacao");
-const areaMensagem = document.getElementById("mensagem");
-const corpoTabela = document.getElementById("lista");
+const PROXIMO_STATUS = {
+  "Aberta": "Em andamento",
+  "Em andamento": "Concluída",
+};
 
 const NOMES_CAMPOS = {
   titulo: "Título",
@@ -14,15 +15,48 @@ const NOMES_CAMPOS = {
 
 const ROTULOS_PRIORIDADE = { baixa: "Baixa", media: "Média", alta: "Alta" };
 
+const CLASSES_PRIORIDADE = {
+  baixa: "prioridade-baixa",
+  media: "prioridade-media",
+  alta: "prioridade-alta",
+};
 
-function mostrarMensagem(mensagens, tipo) {
-  areaMensagem.replaceChildren();
-  areaMensagem.className = tipo;
+const CLASSES_STATUS = {
+  "Aberta": "status-aberta",
+  "Em andamento": "status-andamento",
+  "Concluída": "status-concluida",
+};
+
+const form = document.getElementById("form-solicitacao");
+const areaMensagem = document.getElementById("mensagem");
+const corpoTabela = document.getElementById("lista");
+const filtroStatus = document.getElementById("filtro-status");
+const filtroPrioridade = document.getElementById("filtro-prioridade");
+const botaoLimpar = document.getElementById("limpar-filtros");
+
+const dialogo = document.getElementById("dialogo");
+const areaMensagemDetalhe = document.getElementById("mensagem-detalhe");
+const botaoAvancar = document.getElementById("botao-avancar");
+const botaoFechar = document.getElementById("botao-fechar");
+
+let solicitacaoAberta = null;
+let contadorLista = 0;
+
+
+function mostrarMensagem(area, mensagens, tipo) {
+  area.replaceChildren();
+  area.className = tipo;
   for (const texto of mensagens) {
     const paragrafo = document.createElement("p");
     paragrafo.textContent = texto;
-    areaMensagem.appendChild(paragrafo);
+    area.appendChild(paragrafo);
   }
+}
+
+
+function limparMensagem(area) {
+  area.replaceChildren();
+  area.className = "";
 }
 
 
@@ -72,50 +106,194 @@ function formatarData(iso) {
 }
 
 
+function criarBadge(texto, classe) {
+  const badge = document.createElement("span");
+  badge.className = `badge ${classe || "badge-neutro"}`;
+  badge.textContent = texto;
+  return badge;
+}
+
+
+function criarCelula(conteudo) {
+  const celula = document.createElement("td");
+  if (conteudo instanceof Node) {
+    celula.appendChild(conteudo);
+  } else {
+    celula.textContent = conteudo;
+  }
+  return celula;
+}
+
+
 function renderizarTabela(lista) {
   corpoTabela.replaceChildren();
 
   if (lista.length === 0) {
+    const filtrando = filtroStatus.value || filtroPrioridade.value;
     const linha = document.createElement("tr");
     const celula = document.createElement("td");
-    celula.colSpan = 6;
-    celula.textContent = "Nenhuma solicitação cadastrada.";
+    celula.colSpan = 7;
+    celula.textContent = filtrando
+      ? "Nenhuma solicitação encontrada com esses filtros."
+      : "Nenhuma solicitação cadastrada.";
     linha.appendChild(celula);
     corpoTabela.appendChild(linha);
     return;
   }
 
   for (const item of lista) {
+    const botaoDetalhes = document.createElement("button");
+    botaoDetalhes.type = "button";
+    botaoDetalhes.textContent = "Detalhes";
+    botaoDetalhes.addEventListener("click", () => abrirDetalhe(item.id));
+
     const linha = document.createElement("tr");
-    const valores = [
-      item.id,
-      item.titulo,
-      item.categoria,
-      ROTULOS_PRIORIDADE[item.prioridade] || item.prioridade,
-      item.status,
-      formatarData(item.criado_em),
-    ];
-    for (const valor of valores) {
-      const celula = document.createElement("td");
-      celula.textContent = valor;
-      linha.appendChild(celula);
-    }
+    linha.appendChild(criarCelula(item.id));
+    linha.appendChild(criarCelula(item.titulo));
+    linha.appendChild(criarCelula(item.categoria));
+    linha.appendChild(
+      criarCelula(
+        criarBadge(
+          ROTULOS_PRIORIDADE[item.prioridade] || item.prioridade,
+          CLASSES_PRIORIDADE[item.prioridade]
+        )
+      )
+    );
+    linha.appendChild(
+      criarCelula(criarBadge(item.status, CLASSES_STATUS[item.status]))
+    );
+    linha.appendChild(criarCelula(formatarData(item.criado_em)));
+    linha.appendChild(criarCelula(botaoDetalhes));
     corpoTabela.appendChild(linha);
   }
 }
 
 
 async function carregarSolicitacoes() {
+  const numero = ++contadorLista;
+
+  const params = new URLSearchParams();
+  if (filtroStatus.value) params.set("status", filtroStatus.value);
+  if (filtroPrioridade.value) params.set("prioridade", filtroPrioridade.value);
+  const consulta = params.toString();
+  const url = consulta ? `${API}?${consulta}` : API;
+
   try {
-    const resposta = await fetch(API);
+    const resposta = await fetch(url);
     const corpo = await lerJson(resposta);
+
+    if (numero !== contadorLista) return;
+
     if (!resposta.ok) {
-      mostrarMensagem(extrairErros(corpo), "erro");
+      mostrarMensagem(areaMensagem, extrairErros(corpo), "erro");
       return;
     }
     renderizarTabela(corpo);
   } catch {
-    mostrarMensagem(["Não foi possível conectar ao servidor."], "erro");
+    if (numero !== contadorLista) return;
+    mostrarMensagem(areaMensagem, ["Não foi possível conectar ao servidor."], "erro");
+  }
+}
+
+
+function limparFiltros() {
+  filtroStatus.value = "";
+  filtroPrioridade.value = "";
+  carregarSolicitacoes();
+}
+
+
+async function buscarSolicitacao(id) {
+  const resposta = await fetch(`${API}/${id}`);
+  const corpo = await lerJson(resposta);
+  return { ok: resposta.ok, corpo };
+}
+
+
+function preencherDetalhe(s) {
+  solicitacaoAberta = s;
+
+  document.getElementById("d-titulo").textContent = s.titulo;
+  document.getElementById("d-id").textContent = s.id;
+  document.getElementById("d-descricao").textContent = s.descricao;
+  document.getElementById("d-categoria").textContent = s.categoria;
+  document.getElementById("d-criado").textContent = formatarData(s.criado_em);
+
+  document.getElementById("d-prioridade").replaceChildren(
+    criarBadge(
+      ROTULOS_PRIORIDADE[s.prioridade] || s.prioridade,
+      CLASSES_PRIORIDADE[s.prioridade]
+    )
+  );
+  document.getElementById("d-status").replaceChildren(
+    criarBadge(s.status, CLASSES_STATUS[s.status])
+  );
+
+  const proximo = PROXIMO_STATUS[s.status];
+  botaoAvancar.hidden = !proximo;
+  if (proximo) {
+    botaoAvancar.textContent = `Avançar para "${proximo}"`;
+  }
+}
+
+
+async function abrirDetalhe(id) {
+  limparMensagem(areaMensagemDetalhe);
+  try {
+    const resultado = await buscarSolicitacao(id);
+    if (!resultado.ok) {
+      mostrarMensagem(areaMensagem, extrairErros(resultado.corpo), "erro");
+      return;
+    }
+    preencherDetalhe(resultado.corpo);
+    if (!dialogo.open) dialogo.showModal();
+  } catch {
+    mostrarMensagem(areaMensagem, ["Não foi possível conectar ao servidor."], "erro");
+  }
+}
+
+
+async function avancarStatus() {
+  if (!solicitacaoAberta) return;
+
+  const id = solicitacaoAberta.id;
+  const proximo = PROXIMO_STATUS[solicitacaoAberta.status];
+  if (!proximo) return;
+
+  botaoAvancar.disabled = true;
+  limparMensagem(areaMensagemDetalhe);
+
+  try {
+    const resposta = await fetch(`${API}/${id}/status`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: proximo }),
+    });
+    const corpo = await lerJson(resposta);
+
+    if (!resposta.ok) {
+      mostrarMensagem(areaMensagemDetalhe, extrairErros(corpo), "erro");
+      const atual = await buscarSolicitacao(id);
+      if (atual.ok) preencherDetalhe(atual.corpo);
+      await carregarSolicitacoes();
+      return;
+    }
+
+    preencherDetalhe(corpo);
+    mostrarMensagem(
+      areaMensagemDetalhe,
+      [`Status alterado para "${corpo.status}".`],
+      "sucesso"
+    );
+    await carregarSolicitacoes();
+  } catch {
+    mostrarMensagem(
+      areaMensagemDetalhe,
+      ["Não foi possível conectar ao servidor."],
+      "erro"
+    );
+  } finally {
+    botaoAvancar.disabled = false;
   }
 }
 
@@ -139,18 +317,27 @@ async function enviarFormulario(evento) {
     const corpo = await lerJson(resposta);
 
     if (!resposta.ok) {
-      mostrarMensagem(extrairErros(corpo), "erro");
+      mostrarMensagem(areaMensagem, extrairErros(corpo), "erro");
       return;
     }
 
     form.reset();
-    mostrarMensagem(["Solicitação cadastrada com sucesso."], "sucesso");
+    mostrarMensagem(areaMensagem, ["Solicitação cadastrada com sucesso."], "sucesso");
     await carregarSolicitacoes();
   } catch {
-    mostrarMensagem(["Não foi possível conectar ao servidor."], "erro");
+    mostrarMensagem(areaMensagem, ["Não foi possível conectar ao servidor."], "erro");
   }
 }
 
 
 form.addEventListener("submit", enviarFormulario);
+filtroStatus.addEventListener("change", carregarSolicitacoes);
+filtroPrioridade.addEventListener("change", carregarSolicitacoes);
+botaoLimpar.addEventListener("click", limparFiltros);
+botaoAvancar.addEventListener("click", avancarStatus);
+botaoFechar.addEventListener("click", () => dialogo.close());
+dialogo.addEventListener("click", (evento) => {
+  if (evento.target === dialogo) dialogo.close();
+});
+
 carregarSolicitacoes();
